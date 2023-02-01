@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "entity.h": "c",
+        "global.h": "c",
+        "sdl_image.h": "c"
+    }
+}
