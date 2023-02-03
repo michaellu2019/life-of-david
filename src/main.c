@@ -7,6 +7,7 @@
 #include "engine/utils.h"
 #include "engine/entities/entity.h"
 #include "engine/entities/david.h"
+#include "engine/entities/post.h"
 
 int main(int argc, char **argv)
 {
@@ -17,6 +18,17 @@ int main(int argc, char **argv)
     SDL_Rect david_rect;
     SDL_Surface* david_surface;
     SDL_Texture* david_texture;
+
+    Post left_post;
+    Entity left_post_entity;
+    SDL_Rect left_post_rect;
+    SDL_Surface* left_post_surface;
+    SDL_Texture* left_post_texture;
+    Post right_post;
+    Entity right_post_entity;
+    SDL_Rect right_post_rect;
+    SDL_Surface* right_post_surface;
+    SDL_Texture* right_post_texture;
 
 
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
@@ -38,37 +50,19 @@ int main(int argc, char **argv)
         ERROR_EXIT("Error creating renderer: %s\n", SDL_GetError());
     }
 
-    // / load the image into memory using SDL_image library function
-    SDL_Surface* surface = IMG_Load("./src/assets/david.png");
-    if (!surface)
-    {
-        printf("error creating surface\n");
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
-    }
-
-    // load the image data into the graphics hardware's memory
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-    if (!texture)
-    {
-        printf("error creating texture: %s\n", SDL_GetError());
-        SDL_DestroyRenderer(renderer);
-        SDL_DestroyWindow(window);
-        SDL_Quit();
-        return 1;
-    }
-
-    construct_david(&david, &david_entity, &david_rect, 0, 0, WINDOW_WIDTH/6, WINDOW_WIDTH/6, WINDOW_WIDTH/180, -WINDOW_WIDTH/20, WINDOW_WIDTH/144, 
-                     "./src/assets/david.png", david_surface, david_texture, renderer, window);
+    construct_david(&david, &david_entity, &david_rect, WINDOW_WIDTH/2 - WINDOW_WIDTH/48, WINDOW_WIDTH/10, WINDOW_WIDTH/24, WINDOW_WIDTH/24 * (500.0f/230), 
+                    WINDOW_WIDTH * 0.00001f, WINDOW_WIDTH * 0.00001f, 0.01f, WINDOW_WIDTH/144, 5.0f,
+                    "./src/assets/ss_david.png", david_surface, david_texture, renderer, window);
                      
-    bool david_jumping = false;
+    construct_post(&left_post, &left_post_entity, &left_post_rect, WINDOW_WIDTH/2 - WINDOW_WIDTH/48 - WINDOW_WIDTH/48 - 2, WINDOW_HEIGHT - WINDOW_WIDTH/48 * (300.0f/100), WINDOW_WIDTH/48, WINDOW_WIDTH/48 * (300.0f/100),
+                   0, 0, 0, 0, 0,
+                   "src/assets/post.png", left_post_surface, left_post_texture, renderer, window);  
+    construct_post(&right_post, &right_post_entity, &right_post_rect, WINDOW_WIDTH/2 + WINDOW_WIDTH/48 + 2, WINDOW_HEIGHT - WINDOW_WIDTH/48 * (300.0f/100), WINDOW_WIDTH/48, WINDOW_WIDTH/48 * (300.0f/100),
+                   0, 0, 0, 0, 0,
+                   "src/assets/post.png", right_post_surface, right_post_texture, renderer, window);  
     
     while (!quit)
     {
-
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
@@ -86,10 +80,14 @@ int main(int argc, char **argv)
         }
 
         update_david(&david);
+        update_post(&left_post);
+        update_post(&right_post);
 
         SDL_RenderClear(renderer);
         
-        render_david(&david);
+        render_david(&david, true);
+        render_post(&left_post, true);
+        render_post(&right_post, true);
 
         SDL_RenderPresent(renderer);
 
@@ -97,6 +95,8 @@ int main(int argc, char **argv)
     }
 
     SDL_DestroyTexture(david.entity->texture);
+    SDL_DestroyTexture(left_post.entity->texture);
+    SDL_DestroyTexture(right_post.entity->texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
