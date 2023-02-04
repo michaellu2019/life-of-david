@@ -5,6 +5,7 @@
 typedef struct david {
     Entity* entity;
     float acc;
+    long fitness;
 } David;
 
 void construct_david(David* david, Entity* entity, SDL_Rect* rect, int x, int y, int w, int h, 

@@ -83,6 +83,11 @@ int main(int argc, char **argv)
         update_post(&left_post);
         update_post(&right_post);
 
+        if (colliding_with_entity(david.entity, left_post.entity) || colliding_with_entity(david.entity, right_post.entity))
+        {
+            reset_david(&david);
+        }
+
         SDL_RenderClear(renderer);
         
         render_david(&david, true);

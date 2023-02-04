@@ -8,6 +8,14 @@
 #include "../utils.h"
 #include "../global.h"
 
+#define NUM_HITBOX_CORNERS 4
+
+typedef enum point_orientation {
+    COLLINEAR,
+    CLOCKWISE,
+    COUNTERCLOCKWISE
+} PointOrientation;
+
 typedef struct entity {
     SDL_Rect* rect;
     int start_x;
@@ -18,7 +26,7 @@ typedef struct entity {
     float vel[3];
     float max_speed;
     float max_angular_speed;
-    int hitbox_corners[4][2];
+    float hitbox_corners[NUM_HITBOX_CORNERS][2];
     SDL_Surface* surface;
     SDL_Texture* texture;
     SDL_Renderer* renderer;
@@ -35,3 +43,9 @@ void render_entity(Entity* entity, bool render_hitbox);
 void update_entity_hitbox_corners(Entity* entity);
 
 void reset_entity(Entity* entity);
+
+bool is_point_collinear(float p[2], float q[2], float r[2]);
+
+PointOrientation get_point_orientation(float p[2], float q[2], float r[2]);
+
+bool colliding_with_entity(Entity* entity_one, Entity* entity_two);

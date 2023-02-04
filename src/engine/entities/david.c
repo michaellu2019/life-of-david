@@ -9,6 +9,7 @@ void construct_david(David* david, Entity* entity, SDL_Rect* rect, int x, int y,
     construct_entity(entity, rect, x, y, w, h, acc_x, acc_y, acc_w, max_speed, max_angular_speed, texture_path, surface, texture, renderer, window);
     david->entity = entity;
     david->acc = sqrt(acc_x * acc_x + acc_y * acc_y);
+    david->fitness = 0;
 }
 
 void update_david(David* david)
