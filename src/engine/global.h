@@ -12,7 +12,7 @@
 #define GROUND_Y WINDOW_HEIGHT * 0.9
 
 typedef struct global {
-
+    
 } Global;
 
 extern Global global;

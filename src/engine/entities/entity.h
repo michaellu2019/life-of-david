@@ -18,6 +18,7 @@ typedef enum point_orientation {
 
 typedef struct entity {
     SDL_Rect* rect;
+    bool alive;
     int start_x;
     int start_y;
     double angle;

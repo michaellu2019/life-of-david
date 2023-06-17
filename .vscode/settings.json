@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "post.h": "c",
+        "entity.h": "c",
+        "population.h": "c"
+    }
+}

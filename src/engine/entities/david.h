@@ -2,20 +2,40 @@
 
 #include "entity.h"
 
+#define NUM_MOVES 3000
+#define MOVE_SET_SIZE 8
+
+typedef enum move {
+    UP,
+    UP_AND_LEFT,
+    UP_AND_RIGHT,
+    DOWN,
+    DOWN_AND_LEFT,
+    DOWN_AND_RIGHT,
+    LEFT,
+    RIGHT,
+} Move;
+
 typedef struct david {
     Entity* entity;
     float acc;
     long fitness;
+    char* alive_texture_path;
+    char* dead_texture_path;
+    Move moves[NUM_MOVES];
+    uint32_t move_index;
 } David;
 
 void construct_david(David* david, Entity* entity, SDL_Rect* rect, int x, int y, int w, int h, 
                      float acc_x, float acc_y, float acc_w, float max_speed, float max_angular_speed, 
-                     char* texture_path, SDL_Surface* surface, SDL_Texture* texture, SDL_Renderer* renderer, SDL_Window* window);
+                     char* alive_texture_path, char* dead_texture_path, SDL_Surface* surface, SDL_Texture* texture, SDL_Renderer* renderer, SDL_Window* window);
 
-void update_david(David* david);
+void update_david(David* david, bool teleop);
 
 void render_david(David* david, bool render_hitbox);
 
-void update_david_hitbox_corners(David* david);
+void generate_random_moves(David* david);
 
 void reset_david(David* david);
+
+void terminate_david(David* david);
