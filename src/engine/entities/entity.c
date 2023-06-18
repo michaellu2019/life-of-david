@@ -32,7 +32,7 @@ void construct_entity(Entity* entity, SDL_Rect* rect, int x, int y, int w, int h
     rect->y = y;
 
     entity->rect = rect;
-    entity->alive = true;
+    entity->status = ALIVE;
     entity->start_x = x;
     entity->start_y = y;
     entity->angle = 0.0;
@@ -54,7 +54,7 @@ void construct_entity(Entity* entity, SDL_Rect* rect, int x, int y, int w, int h
 
 void update_entity(Entity* entity)
 {
-    if (!entity->alive) 
+    if (entity->status == DEAD || entity->status == NIRVANA) 
         return;
 
     entity->vel[0] = entity->vel[0] < -entity->max_speed ? -entity->max_speed :
@@ -118,7 +118,7 @@ void update_entity_hitbox_corners(Entity* entity)
 
 void reset_entity(Entity* entity)
 {
-    entity->alive = true;
+    entity->status = ALIVE;
     entity->rect->x = entity->start_x;
     entity->rect->y = entity->start_y;
     entity->angle = 0.0;
@@ -127,6 +127,7 @@ void reset_entity(Entity* entity)
     entity->vel[0] = 0;
     entity->vel[1] = 0;
     entity->vel[2] = 0;
+    update_entity_hitbox_corners(entity);
 }
 
 bool is_point_collinear(float p[2], float q[2], float r[2])

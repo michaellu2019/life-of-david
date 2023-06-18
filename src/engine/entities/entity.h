@@ -16,9 +16,15 @@ typedef enum point_orientation {
     COUNTERCLOCKWISE
 } PointOrientation;
 
+typedef enum status {
+    ALIVE,
+    DEAD,
+    NIRVANA
+} Status;
+
 typedef struct entity {
     SDL_Rect* rect;
-    bool alive;
+    Status status;
     int start_x;
     int start_y;
     double angle;

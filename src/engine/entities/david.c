@@ -2,14 +2,15 @@
 
 #include "david.h"
 
-void construct_david(David* david, Entity* entity, SDL_Rect* rect, int x, int y, int w, int h, 
+void construct_david(David* david, Entity* entity, SDL_Rect* rect, int id, int x, int y, int w, int h, 
                      float acc_x, float acc_y, float acc_w, float max_speed, float max_angular_speed, 
                      char* alive_texture_path, char* dead_texture_path, SDL_Surface* surface, SDL_Texture* texture, SDL_Renderer* renderer, SDL_Window* window)
 {
     construct_entity(entity, rect, x, y, w, h, acc_x, acc_y, acc_w, max_speed, max_angular_speed, alive_texture_path, surface, texture, renderer, window);
+    david->id = id;
     david->entity = entity;
     david->acc = sqrt(acc_x * acc_x + acc_y * acc_y);
-    david->fitness = 0;
+    david->score = -1.0f;
     david->move_index = 0;
     david->alive_texture_path = alive_texture_path;
     david->dead_texture_path = dead_texture_path;
@@ -18,13 +19,12 @@ void construct_david(David* david, Entity* entity, SDL_Rect* rect, int x, int y,
 
 void update_david(David* david, bool teleop)
 {
-    if (!david->entity->alive)
+    if (david->entity->status == DEAD || david->entity->status == NIRVANA)
         return; 
 
     if (david->entity->rect->x <= 0 || david->entity->rect->y <= 0 || 
-        david->entity->rect->x + david->entity->rect->w > WINDOW_WIDTH || david->entity->rect->y + david->entity->rect->h > WINDOW_HEIGHT) {
+        david->entity->rect->x + david->entity->rect->w > WINDOW_WIDTH || david->entity->rect->y + david->entity->rect->h/2 > WINDOW_HEIGHT) 
         terminate_david(david);
-    }
     // float x = david->entity->rect->x;
     // float y = david->entity->rect->y;
     // printf("%d %d %.2f %.2f\n", david->move_index, david->moves[david->move_index], x, y);
@@ -55,9 +55,8 @@ void update_david(David* david, bool teleop)
     }
 
     david->move_index++;
-    if (david->move_index >= NUM_MOVES) {
+    if (david->move_index >= NUM_MOVES)
         terminate_david(david);
-    }
 
     update_entity(david->entity);
 }
@@ -70,22 +69,37 @@ void render_david(David* david, bool render_hitbox)
 void generate_random_moves(David* david)
 {
     for (int i = 0; i < NUM_MOVES; i++)
+        david->moves[i] = rand() % MOVE_SET_SIZE;
+}
+
+void mutate_moves(David* david)
+{
+    for (int i = 0; i < NUM_MOVES; i++)
     {
-        int rand_num = rand() % MOVE_SET_SIZE;
-        david->moves[i] = rand_num;
+        int move_mutation_chance = rand() % 100;
+        if (move_mutation_chance < MOVE_MUTATION_RATE)
+        {
+            david->moves[i] = rand() % MOVE_SET_SIZE;
+        }
     }
 }
 
 void reset_david(David* david)
 {
     reset_entity(david->entity);
+    david->score = -1.0f;
+    david->move_index = 0;
+    // david->entity->status = ALIVE;
+    // david->entity->surface = IMG_Load(david->alive_texture_path);
+    // david->entity->texture = SDL_CreateTextureFromSurface(david->entity->renderer, david->entity->surface);
+    // SDL_FreeSurface(david->entity->surface);
+    // generate_random_moves(david);
 }
 
 void terminate_david(David* david)
 {
-    david->entity->alive = false;
-    david->entity->surface = IMG_Load(david->dead_texture_path);
-
-    david->entity->texture = SDL_CreateTextureFromSurface(david->entity->renderer, david->entity->surface);
-    SDL_FreeSurface(david->entity->surface);
+    david->entity->status = DEAD;
+    // david->entity->surface = IMG_Load(david->dead_texture_path);
+    // david->entity->texture = SDL_CreateTextureFromSurface(david->entity->renderer, david->entity->surface);
+    // SDL_FreeSurface(david->entity->surface);
 }

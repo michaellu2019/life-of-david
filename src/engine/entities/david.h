@@ -2,8 +2,9 @@
 
 #include "entity.h"
 
-#define NUM_MOVES 3000
+#define NUM_MOVES 2400
 #define MOVE_SET_SIZE 8
+#define MOVE_MUTATION_RATE 15
 
 typedef enum move {
     UP,
@@ -17,16 +18,17 @@ typedef enum move {
 } Move;
 
 typedef struct david {
+    int id;
     Entity* entity;
     float acc;
-    long fitness;
+    float score;
     char* alive_texture_path;
     char* dead_texture_path;
     Move moves[NUM_MOVES];
     uint32_t move_index;
 } David;
 
-void construct_david(David* david, Entity* entity, SDL_Rect* rect, int x, int y, int w, int h, 
+void construct_david(David* david, Entity* entity, SDL_Rect* rect, int id, int x, int y, int w, int h, 
                      float acc_x, float acc_y, float acc_w, float max_speed, float max_angular_speed, 
                      char* alive_texture_path, char* dead_texture_path, SDL_Surface* surface, SDL_Texture* texture, SDL_Renderer* renderer, SDL_Window* window);
 
@@ -35,6 +37,8 @@ void update_david(David* david, bool teleop);
 void render_david(David* david, bool render_hitbox);
 
 void generate_random_moves(David* david);
+
+void mutate_moves(David* david);
 
 void reset_david(David* david);
 
