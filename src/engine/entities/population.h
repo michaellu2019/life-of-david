@@ -6,8 +6,8 @@
 #define SCORE_SCALE 100000000.0f
 #define POS_SCORE_WEIGHT 2.0f
 #define SPEED_SCORE_WEIGHT 0.1f
-#define NIRVANA_SCORE_BONUS 2.0f
-#define REACHED_GOAL_TOLERANCE 5.0f
+#define NIRVANA_SCORE_BONUS 8.0f
+#define REACHED_GOAL_TOLERANCE 40.0f
 
 typedef struct population {
     David *davids[POPULATION_SIZE];

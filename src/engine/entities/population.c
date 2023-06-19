@@ -8,9 +8,9 @@ void construct_population(Population* population, int start_x, int start_y, int 
 {
     for (int i = 0; i < POPULATION_SIZE; i++)
     {
-        construct_david(&davids[i], &david_entities[i], &david_rects[i], i, WINDOW_WIDTH/2 - WINDOW_WIDTH/96, WINDOW_WIDTH/20, WINDOW_WIDTH/48, WINDOW_WIDTH/48 * (500.0f/230), 
+        construct_david(&davids[i], &david_entities[i], &david_rects[i], i, WINDOW_WIDTH/2 - WINDOW_WIDTH/96, WINDOW_WIDTH/20, WINDOW_WIDTH/48, WINDOW_WIDTH/48 * (630.0f/450), 
                     WINDOW_WIDTH * 0.0001f, WINDOW_WIDTH * 0.0001f, 0.03f, WINDOW_WIDTH/144, 5.0f,
-                    "./src/assets/ss_david.png", "./src/assets/ss_david_crashed.png", david_surfaces[i], david_textures[i], renderer, window);     
+                    "./src/assets/turtle_david.png", "./src/assets/ss_david_crashed.png", david_surfaces[i], david_textures[i], renderer, window);     
         population->davids[i] = &davids[i];
     }
 
@@ -39,6 +39,8 @@ void update_population(Population* population)
         if (sqrt(dx*dx + dy*dy) < REACHED_GOAL_TOLERANCE)
         {
             population->davids[i]->entity->status = NIRVANA;
+            population->davids[i]->score *= NIRVANA_SCORE_BONUS;
+            printf("David #%d.%d has achieved Nirvana... Score: %f Moves: %d.\n", population->generation_number, i, population->davids[i]->score, population->davids[i]->move_index + 1);
         }
 
         if (population->davids[i]->entity->status == DEAD && population->davids[i]->score == -1) 
@@ -54,14 +56,14 @@ void update_population(Population* population)
                 population->generation_best_score = population->davids[i]->score;
                 population->generation_best_id = i;
             }
+            if (population->davids[i]->score > population->best_score)
+            {
+                population->best_score = population->davids[i]->score;
+                population->best_generation_number = population->generation_number;
+                population->best_id = i;
+            }
 
-            printf("David #%d.%d died... Score: %f Moves: %d. Population Size: %d\n", population->generation_number, i, population->davids[i]->score, population->davids[i]->move_index + 1, population->num_alive);
-        }
-
-        if (population->davids[i]->entity->status == NIRVANA) 
-        {
-            population->davids[i]->score *= NIRVANA_SCORE_BONUS;
-            printf("David #%d.%d has achieved Nirvana... Score: %f Moves: %d.\n", population->generation_number, i, population->davids[i]->score, population->davids[i]->move_index + 1);
+            printf("David #%d.%d died... Score: %.3f Moves: %d. Population Size: %d\n", population->generation_number, i, population->davids[i]->score, population->davids[i]->move_index + 1, population->num_alive);
         }
     }
 

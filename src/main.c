@@ -11,6 +11,7 @@
 #include "engine/entities/david.h"
 #include "engine/entities/post.h"
 #include "engine/entities/population.h"
+#include "engine/entities/text.h"
 
 int main(int argc, char **argv)
 {
@@ -19,10 +20,11 @@ int main(int argc, char **argv)
     bool quit = false;
     bool render_hitboxes = false;
 
-    int goal_x = WINDOW_WIDTH/2 - WINDOW_WIDTH/12;//0.8f * (rand() % WINDOW_WIDTH/2 - WINDOW_WIDTH/4);
-    int goal_y = WINDOW_HEIGHT - WINDOW_WIDTH/96 * (300.0f/100);
+    int goal_x = WINDOW_WIDTH/2 - 0.8f * (rand() % WINDOW_WIDTH - WINDOW_WIDTH/2);
+    int goal_y = WINDOW_HEIGHT - WINDOW_WIDTH/48 * (640.0f/520);
     int goal_post_margin = WINDOW_WIDTH/70;
 
+    char* post_img_path = "src/assets/post.png";
     Post obstacle_top_post;
     Entity obstacle_top_post_entity;
     SDL_Rect obstacle_top_post_rect;
@@ -33,16 +35,11 @@ int main(int argc, char **argv)
     SDL_Rect obstacle_bottom_post_rect;
     SDL_Surface* obstacle_bottom_post_surface;
     SDL_Texture* obstacle_bottom_post_texture;
-    Post goal_left_post;
-    Entity goal_left_post_entity;
-    SDL_Rect goal_left_post_rect;
-    SDL_Surface* goal_left_post_surface;
-    SDL_Texture* goal_left_post_texture;
-    Post goal_right_post;
-    Entity goal_right_post_entity;
-    SDL_Rect goal_right_post_rect;
-    SDL_Surface* goal_right_post_surface;
-    SDL_Texture* goal_right_post_texture;
+    char* jellyfish_img_path = "src/assets/jellyfish.png";
+    Entity jellyfish;
+    SDL_Rect jellyfish_rect;
+    SDL_Surface* jellyfish_surface;
+    SDL_Texture* jellyfish_texture;
 
     David davids[POPULATION_SIZE];
     Entity david_entities[POPULATION_SIZE];
@@ -52,10 +49,26 @@ int main(int argc, char **argv)
 
     Population population;
 
+    char* font_ttf_path = "src/assets/Archivo/Archivo-VariableFont_wdth,wght.ttf";
+    int font_size = WINDOW_HEIGHT/40;
+    SDL_Color text_color = {255, 255, 255};
+    Text generation_text;
+    SDL_Rect generation_text_rect;
+    SDL_Surface* generation_text_surface;
+    SDL_Texture* generation_text_texture;
+    Text best_score_text;
+    SDL_Rect best_score_text_rect;
+    SDL_Surface* best_score_text_surface;
+    SDL_Texture* best_score_text_texture;
+    Text best_david_text;
+    SDL_Rect best_david_text_rect;
+    SDL_Surface* best_david_text_surface;
+    SDL_Texture* best_david_text_texture;
+
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER) != 0)
         ERROR_EXIT("Error initializing SDL: %s\n", SDL_GetError());
     
-    SDL_Window* window = SDL_CreateWindow("David", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
+    SDL_Window* window = SDL_CreateWindow("The Life and Evolution of David", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, WINDOW_WIDTH, WINDOW_HEIGHT, 0);
     if (!window)
     {
         SDL_Quit();
@@ -70,22 +83,29 @@ int main(int argc, char **argv)
         SDL_Quit();
         ERROR_EXIT("Error creating renderer: %s\n", SDL_GetError());
     }
+    TTF_Init();
       
     construct_post(&obstacle_top_post, &obstacle_top_post_entity, &obstacle_top_post_rect, WINDOW_WIDTH/2 - WINDOW_WIDTH/4, WINDOW_HEIGHT/2 - WINDOW_HEIGHT/16, WINDOW_WIDTH/2, WINDOW_HEIGHT/50,
                    0, 0, 0, 0, 0,
-                   "src/assets/post.png", obstacle_top_post_surface, obstacle_top_post_texture, renderer, window);  
+                   post_img_path, obstacle_top_post_surface, obstacle_top_post_texture, renderer, window);  
     construct_post(&obstacle_bottom_post, &obstacle_bottom_post_entity, &obstacle_bottom_post_rect, WINDOW_WIDTH/2 - WINDOW_WIDTH * (3/4), WINDOW_HEIGHT/2 + WINDOW_HEIGHT/4, WINDOW_WIDTH/2, WINDOW_HEIGHT/50,
                    0, 0, 0, 0, 0,
-                   "src/assets/post.png", obstacle_bottom_post_surface, obstacle_bottom_post_texture, renderer, window);  
-    construct_post(&goal_left_post, &goal_left_post_entity, &goal_left_post_rect, goal_x - WINDOW_WIDTH/96 - WINDOW_WIDTH/96 - goal_post_margin, goal_y, WINDOW_WIDTH/96, WINDOW_WIDTH/96 * (300.0f/100),
-                   0, 0, 0, 0, 0,
-                   "src/assets/post.png", goal_left_post_surface, goal_left_post_texture, renderer, window);  
-    construct_post(&goal_right_post, &goal_right_post_entity, &goal_right_post_rect, goal_x + WINDOW_WIDTH/96 + goal_post_margin, goal_y, WINDOW_WIDTH/96, WINDOW_WIDTH/96 * (300.0f/100),
-                   0, 0, 0, 0, 0,
-                   "src/assets/post.png", goal_right_post_surface, goal_right_post_texture, renderer, window);  
+                   post_img_path, obstacle_bottom_post_surface, obstacle_bottom_post_texture, renderer, window);  
+    construct_entity(&jellyfish, &jellyfish_rect, goal_x, goal_y, WINDOW_WIDTH/48, WINDOW_WIDTH/48 * (640.0f/520),
+                     0, 0, 0, 0, 0,
+                     jellyfish_img_path, jellyfish_surface, jellyfish_texture, renderer, window);
     construct_population(&population, WINDOW_WIDTH/2 - WINDOW_WIDTH/48, WINDOW_WIDTH/10, goal_x, goal_y,
                          davids, david_entities, david_rects, david_surfaces, david_textures,
                          renderer, window);
+    construct_text(&generation_text, &generation_text_rect, 0, 0,
+                   font_ttf_path, font_size, "Generation #0", 
+                   &text_color, generation_text_surface, generation_text_texture, renderer, window);
+    construct_text(&best_score_text, &best_score_text_rect, 0, font_size,
+                   font_ttf_path, font_size, "Best Score: 420", 
+                   &text_color, best_score_text_surface, best_score_text_texture, renderer, window);
+    construct_text(&best_david_text, &best_david_text_rect, 0, font_size * 2,
+                   font_ttf_path, font_size, "Best David: #420.69", 
+                   &text_color, best_david_text_surface, best_david_text_texture, renderer, window);
 
     while (!quit)
     {
@@ -107,36 +127,50 @@ int main(int argc, char **argv)
 
         update_post(&obstacle_top_post);
         update_post(&obstacle_bottom_post);
-        update_post(&goal_left_post);
-        update_post(&goal_right_post);
-        update_population(&population);
+        update_entity(&jellyfish);
+
+        char new_generation_text[128];
+        sprintf(new_generation_text, "Generation #%d", population.generation_number);
+        update_text(&generation_text, new_generation_text);
+        char new_best_score_text[128];
+        sprintf(new_best_score_text, "Best Score: %.3f", population.best_score);
+        update_text(&best_score_text, new_best_score_text);
+        char new_best_david_text[128];
+        sprintf(new_best_david_text, "Best David: #%d.%d", population.best_generation_number, population.best_id);
+        update_text(&best_david_text, new_best_david_text);
 
         for (int i = 0; i < POPULATION_SIZE; i++) {
-            if (colliding_with_entity(population.davids[i]->entity, obstacle_top_post.entity) || colliding_with_entity(population.davids[i]->entity, obstacle_bottom_post.entity) ||
-                colliding_with_entity(population.davids[i]->entity, goal_left_post.entity) || colliding_with_entity(population.davids[i]->entity, goal_right_post.entity))
-            {
+            if (colliding_with_entity(population.davids[i]->entity, obstacle_top_post.entity) || colliding_with_entity(population.davids[i]->entity, obstacle_bottom_post.entity))
                 terminate_david(population.davids[i]);
-            }
         }
+
+        update_population(&population);
         
+        SDL_SetRenderDrawColor(renderer, 144, 202, 249, 255);
         SDL_RenderClear(renderer);
         
         render_population(&population, render_hitboxes);
         render_post(&obstacle_top_post, render_hitboxes);
         render_post(&obstacle_bottom_post, render_hitboxes);
-        render_post(&goal_left_post, render_hitboxes);
-        render_post(&goal_right_post, render_hitboxes);
+        render_entity(&jellyfish, render_hitboxes);
+        render_text(&generation_text);
+        render_text(&best_score_text);
+        render_text(&best_david_text);
 
         SDL_RenderPresent(renderer);
 
-        SDL_Delay(1000/60);
+        SDL_Delay(1000/(population.generation_number > 1 ? 240 : 60));
     }
 
     eradicate_population(&population);
     SDL_DestroyTexture(obstacle_top_post.entity->texture);
     SDL_DestroyTexture(obstacle_bottom_post.entity->texture);
-    SDL_DestroyTexture(goal_left_post.entity->texture);
-    SDL_DestroyTexture(goal_right_post.entity->texture);
+    SDL_DestroyTexture(jellyfish.texture);
+    SDL_DestroyTexture(generation_text.texture);
+    SDL_DestroyTexture(best_score_text.texture);
+    SDL_DestroyTexture(best_david_text.texture);
+    
+    TTF_Init();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

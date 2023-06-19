@@ -84,10 +84,21 @@ void render_entity(Entity* entity, bool render_hitbox)
     
     if (render_hitbox)
     {
+        uint8_t line_thickness = 5;
         SDL_SetRenderDrawColor(entity->renderer, 255, 0, 0, 255);
         for (int i = 0; i < 4; i++)
-            SDL_RenderDrawLine(entity->renderer, entity->hitbox_corners[i][0], entity->hitbox_corners[i][1], entity->hitbox_corners[(i + 1) % NUM_HITBOX_CORNERS][0], entity->hitbox_corners[(i + 1) % NUM_HITBOX_CORNERS][1]);     
-        SDL_SetRenderDrawColor(entity->renderer, 0, 0, 0, 255);
+        {
+            for (int j = 0; j < line_thickness; j++)
+            {
+                int8_t offset_x1 = i == 0 || i == 3 ? -1 : 1;
+                int8_t offset_y1 = i == 0 || i == 1 ? -1 : 1;
+                int8_t offset_x2 = i == 2 || i == 3 ? -1 : 1;
+                int8_t offset_y2 = i == 0 || i == 3 ? -1 : 1;
+                SDL_RenderDrawLine(entity->renderer, entity->hitbox_corners[i][0] + j * offset_x1, entity->hitbox_corners[i][1] + j * offset_y1, 
+                                   entity->hitbox_corners[(i + 1) % NUM_HITBOX_CORNERS][0] + j * offset_x2, entity->hitbox_corners[(i + 1) % NUM_HITBOX_CORNERS][1] + j * offset_y2);
+            }
+        }
+            
     }
 }
 
