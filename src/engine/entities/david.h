@@ -2,7 +2,7 @@
 
 #include "entity.h"
 
-#define NUM_MOVES 2400
+#define NUM_MOVES 600
 #define MOVE_SET_SIZE 8
 #define MOVE_MUTATION_RATE 15
 

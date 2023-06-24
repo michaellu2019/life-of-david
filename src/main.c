@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <time.h>
+#include <unistd.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_timer.h>
 #include <SDL2/SDL_image.h>
@@ -22,7 +23,8 @@ int main(int argc, char **argv)
     bool render_hitboxes = false;
 
     int jellyfish_width = global.gamemode == TELEOP ? WINDOW_WIDTH/12 : WINDOW_WIDTH/48;
-    int goal_x = WINDOW_WIDTH/2 - 0.8f * (rand() % WINDOW_WIDTH - WINDOW_WIDTH/2);
+    // int goal_x = WINDOW_WIDTH/2 - 0.8f * (rand() % WINDOW_WIDTH - WINDOW_WIDTH/2);
+    int goal_x = WINDOW_WIDTH * 0.8f;
     int goal_y = WINDOW_HEIGHT - jellyfish_width * (640.0f/520);
     int goal_post_margin = WINDOW_WIDTH/70;
 
@@ -115,7 +117,7 @@ int main(int argc, char **argv)
     construct_text(&best_david_text, &best_david_text_rect, 0, font_size * 3,
                    font_ttf_path, font_size, "Best David: #420.69", 
                    &text_color, best_david_text_surface, best_david_text_texture, renderer, window);
-
+    sleep(1);
     while (!quit)
     {
         SDL_Event event;
