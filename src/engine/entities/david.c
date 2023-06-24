@@ -17,7 +17,7 @@ void construct_david(David* david, Entity* entity, SDL_Rect* rect, int id, int x
     generate_random_moves(david);
 }
 
-void update_david(David* david, bool teleop)
+void update_david(David* david)
 {
     if (david->entity->status == DEAD || david->entity->status == NIRVANA)
         return; 
@@ -29,34 +29,37 @@ void update_david(David* david, bool teleop)
     // float y = david->entity->rect->y;
     // printf("%d %d %.2f %.2f\n", david->move_index, david->moves[david->move_index], x, y);
         
-    const uint8_t *keyboard_state = teleop ? 0 : SDL_GetKeyboardState(NULL);
+    const uint8_t *keyboard_state = SDL_GetKeyboardState(NULL);
+    bool teleop = global.gamemode == TELEOP;
 
-    if (david->moves[david->move_index] == UP || david->moves[david->move_index] == UP_AND_LEFT || david->moves[david->move_index] == UP_AND_RIGHT || 
+    if ((!teleop && (david->moves[david->move_index] == UP || david->moves[david->move_index] == UP_AND_LEFT || david->moves[david->move_index] == UP_AND_RIGHT)) || 
         (teleop && keyboard_state[SDL_SCANCODE_UP] || keyboard_state[SDL_SCANCODE_W]))
     {
         david->entity->vel[0] -= david->acc * cos((david->entity->angle + 90.0) * PI/180);
         david->entity->vel[1] -= david->acc * sin((david->entity->angle + 90.0) * PI/180);
     }
-    if (david->moves[david->move_index] == DOWN || david->moves[david->move_index] == DOWN_AND_LEFT || david->moves[david->move_index] == DOWN_AND_RIGHT || 
+    if ((!teleop && (david->moves[david->move_index] == DOWN || david->moves[david->move_index] == DOWN_AND_LEFT || david->moves[david->move_index] == DOWN_AND_RIGHT)) || 
         (teleop && keyboard_state[SDL_SCANCODE_DOWN] || keyboard_state[SDL_SCANCODE_S]))
     {
         david->entity->vel[0] += david->acc * cos((david->entity->angle + 90.0) * PI/180);
         david->entity->vel[1] += david->acc * sin((david->entity->angle + 90.0) * PI/180);
     }
-    if (david->moves[david->move_index] == LEFT || david->moves[david->move_index] == UP_AND_LEFT || david->moves[david->move_index] == DOWN_AND_LEFT || 
+    if ((!teleop && (david->moves[david->move_index] == LEFT || david->moves[david->move_index] == UP_AND_LEFT || david->moves[david->move_index] == DOWN_AND_LEFT)) || 
         (teleop && keyboard_state[SDL_SCANCODE_LEFT] || keyboard_state[SDL_SCANCODE_A]))
     {
         david->entity->vel[2] -= david->entity->acc[2];
     }
-    if (david->moves[david->move_index] == RIGHT || david->moves[david->move_index] == UP_AND_RIGHT || david->moves[david->move_index] == DOWN_AND_RIGHT || 
+    if ((!teleop && (david->moves[david->move_index] == RIGHT || david->moves[david->move_index] == UP_AND_RIGHT || david->moves[david->move_index] == DOWN_AND_RIGHT)) || 
         (teleop && keyboard_state[SDL_SCANCODE_RIGHT] || keyboard_state[SDL_SCANCODE_D]))
     {
         david->entity->vel[2] += david->entity->acc[2];
     }
 
-    david->move_index++;
-    if (david->move_index >= NUM_MOVES)
-        terminate_david(david);
+    if (!teleop) {
+        david->move_index++;
+        if (david->move_index >= NUM_MOVES)
+            terminate_david(david);
+    }
 
     update_entity(david->entity);
 }

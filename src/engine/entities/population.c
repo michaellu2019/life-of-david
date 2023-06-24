@@ -8,7 +8,8 @@ void construct_population(Population* population, int start_x, int start_y, int 
 {
     for (int i = 0; i < POPULATION_SIZE; i++)
     {
-        construct_david(&davids[i], &david_entities[i], &david_rects[i], i, WINDOW_WIDTH/2 - WINDOW_WIDTH/96, WINDOW_WIDTH/20, WINDOW_WIDTH/48, WINDOW_WIDTH/48 * (630.0f/450), 
+        int w = global.gamemode == TELEOP ? WINDOW_WIDTH/12 : WINDOW_WIDTH/48;
+        construct_david(&davids[i], &david_entities[i], &david_rects[i], i, WINDOW_WIDTH/2 - w/2, WINDOW_WIDTH/20, w, w * (630.0f/450), 
                     WINDOW_WIDTH * 0.0001f, WINDOW_WIDTH * 0.0001f, 0.03f, WINDOW_WIDTH/144, 5.0f,
                     "./src/assets/turtle_david.png", "./src/assets/ss_david_crashed.png", david_surfaces[i], david_textures[i], renderer, window);     
         population->davids[i] = &davids[i];
@@ -33,7 +34,10 @@ void update_population(Population* population)
 {
     for (int i = 0; i < POPULATION_SIZE; i++)
     {
-        update_david(population->davids[i], false);
+        update_david(population->davids[i]);
+        if (global.gamemode == TELEOP)
+            break;
+
         int dx = population->davids[i]->entity->rect->x - population->goal_x;
         int dy = population->davids[i]->entity->rect->y - population->goal_y;
         if (sqrt(dx*dx + dy*dy) < REACHED_GOAL_TOLERANCE)
@@ -63,7 +67,7 @@ void update_population(Population* population)
                 population->best_id = i;
             }
 
-            printf("David #%d.%d died... Score: %.3f Moves: %d. Population Size: %d\n", population->generation_number, i, population->davids[i]->score, population->davids[i]->move_index + 1, population->num_alive);
+            printf("David #%d.%d died... Score: %.3f Moves: %d\n", population->generation_number, i, population->davids[i]->score, population->davids[i]->move_index + 1);
         }
     }
 
@@ -77,7 +81,7 @@ void update_population(Population* population)
 void render_population(Population* population, bool render_hitbox)
 {
     for (int i = 0; i < POPULATION_SIZE; i++)
-        render_david(population->davids[i], i == population->generation_best_id);
+        render_david(population->davids[i], global.gamemode != TELEOP && i == population->generation_best_id);
 }
 
 void respawn_population(Population* population)

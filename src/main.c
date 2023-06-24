@@ -17,11 +17,13 @@ int main(int argc, char **argv)
 {
     srand(time(NULL));
 
+    global.gamemode = EVOLUTION;
     bool quit = false;
     bool render_hitboxes = false;
 
+    int jellyfish_width = global.gamemode == TELEOP ? WINDOW_WIDTH/12 : WINDOW_WIDTH/48;
     int goal_x = WINDOW_WIDTH/2 - 0.8f * (rand() % WINDOW_WIDTH - WINDOW_WIDTH/2);
-    int goal_y = WINDOW_HEIGHT - WINDOW_WIDTH/48 * (640.0f/520);
+    int goal_y = WINDOW_HEIGHT - jellyfish_width * (640.0f/520);
     int goal_post_margin = WINDOW_WIDTH/70;
 
     char* post_img_path = "src/assets/post.png";
@@ -56,6 +58,10 @@ int main(int argc, char **argv)
     SDL_Rect generation_text_rect;
     SDL_Surface* generation_text_surface;
     SDL_Texture* generation_text_texture;
+    Text population_text;
+    SDL_Rect population_text_rect;
+    SDL_Surface* population_text_surface;
+    SDL_Texture* population_text_texture;
     Text best_score_text;
     SDL_Rect best_score_text_rect;
     SDL_Surface* best_score_text_surface;
@@ -91,19 +97,22 @@ int main(int argc, char **argv)
     construct_post(&obstacle_bottom_post, &obstacle_bottom_post_entity, &obstacle_bottom_post_rect, WINDOW_WIDTH/2 - WINDOW_WIDTH * (3/4), WINDOW_HEIGHT/2 + WINDOW_HEIGHT/4, WINDOW_WIDTH/2, WINDOW_HEIGHT/50,
                    0, 0, 0, 0, 0,
                    post_img_path, obstacle_bottom_post_surface, obstacle_bottom_post_texture, renderer, window);  
-    construct_entity(&jellyfish, &jellyfish_rect, goal_x, goal_y, WINDOW_WIDTH/48, WINDOW_WIDTH/48 * (640.0f/520),
+    construct_entity(&jellyfish, &jellyfish_rect, goal_x, goal_y, jellyfish_width, jellyfish_width * (640.0f/520),
                      0, 0, 0, 0, 0,
                      jellyfish_img_path, jellyfish_surface, jellyfish_texture, renderer, window);
     construct_population(&population, WINDOW_WIDTH/2 - WINDOW_WIDTH/48, WINDOW_WIDTH/10, goal_x, goal_y,
                          davids, david_entities, david_rects, david_surfaces, david_textures,
                          renderer, window);
     construct_text(&generation_text, &generation_text_rect, 0, 0,
-                   font_ttf_path, font_size, "Generation #0", 
+                   font_ttf_path, font_size, "Generation: 0", 
                    &text_color, generation_text_surface, generation_text_texture, renderer, window);
-    construct_text(&best_score_text, &best_score_text_rect, 0, font_size,
+    construct_text(&population_text, &population_text_rect, 0, font_size,
+                   font_ttf_path, font_size, "Population Size: 0", 
+                   &text_color, population_text_surface, population_text_texture, renderer, window);
+    construct_text(&best_score_text, &best_score_text_rect, 0, font_size * 2,
                    font_ttf_path, font_size, "Best Score: 420", 
                    &text_color, best_score_text_surface, best_score_text_texture, renderer, window);
-    construct_text(&best_david_text, &best_david_text_rect, 0, font_size * 2,
+    construct_text(&best_david_text, &best_david_text_rect, 0, font_size * 3,
                    font_ttf_path, font_size, "Best David: #420.69", 
                    &text_color, best_david_text_surface, best_david_text_texture, renderer, window);
 
@@ -130,8 +139,11 @@ int main(int argc, char **argv)
         update_entity(&jellyfish);
 
         char new_generation_text[128];
-        sprintf(new_generation_text, "Generation #%d", population.generation_number);
+        sprintf(new_generation_text, "Generation: %d", population.generation_number);
         update_text(&generation_text, new_generation_text);
+        char new_population_text[128];
+        sprintf(new_population_text, "Population Size: %d", population.num_alive);
+        update_text(&population_text, new_population_text);
         char new_best_score_text[128];
         sprintf(new_best_score_text, "Best Score: %.3f", population.best_score);
         update_text(&best_score_text, new_best_score_text);
@@ -154,6 +166,7 @@ int main(int argc, char **argv)
         render_post(&obstacle_bottom_post, render_hitboxes);
         render_entity(&jellyfish, render_hitboxes);
         render_text(&generation_text);
+        render_text(&population_text);
         render_text(&best_score_text);
         render_text(&best_david_text);
 
@@ -167,6 +180,7 @@ int main(int argc, char **argv)
     SDL_DestroyTexture(obstacle_bottom_post.entity->texture);
     SDL_DestroyTexture(jellyfish.texture);
     SDL_DestroyTexture(generation_text.texture);
+    SDL_DestroyTexture(population_text.texture);
     SDL_DestroyTexture(best_score_text.texture);
     SDL_DestroyTexture(best_david_text.texture);
     
